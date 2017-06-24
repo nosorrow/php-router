@@ -1,0 +1,139 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="description" content="">
+    <meta name="author" content="">
+    <link rel="icon" href="favicon.ico">
+    <title>Title</title>
+    <!-- Latest compiled and minified CSS -->
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/css/bootstrap.min.css"
+          integrity="sha384-1q8mTJOASx8j1Au+a5WDVnPi2lkFfwwEAa8hDDdjZlpLegxhjVME1fgjWPGmkzs7" crossorigin="anonymous">
+    <!-- Optional theme -->
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/css/bootstrap-theme.min.css"
+          integrity="sha384-fLW2N01lMqjakBkx3l/M9EahuwpSfeNvV63J5ezn3uZzapT0u7EYsXMjQV+0En5r" crossorigin="anonymous">
+    <!-- Latest compiled and minified JavaScript -->
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/2.2.2/jquery.min.js"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/js/bootstrap.min.js"
+            integrity="sha384-0mSbJDEHialfmuBBQP6A4Qrprq5OVfW37PRR3j5ELqxss1yVqOtnepnHVP9aJ7xS"
+            crossorigin="anonymous"></script>
+    <link rel="stylesheet" href="//cdnjs.cloudflare.com/ajax/libs/highlight.js/9.10.0/styles/default.min.css">
+    <script src="//cdnjs.cloudflare.com/ajax/libs/highlight.js/9.10.0/highlight.min.js"></script>
+    <script>hljs.initHighlightingOnLoad();</script>
+</head>
+<body id="preview">
+<h2><a id="phprouter_0"></a>php-router</h2>
+<hr>
+<h4><a id="Add_routes_in_routerphp_3"></a>Add routes in router.php</h4>
+<pre><code class="language-php"><span class="hljs-comment">// Basic usage</span>
+    Router::get(<span class="hljs-string">'route/{id}'</span>, [<span class="hljs-string">'class@action'</span>, <span
+            class="hljs-string">'name'</span>=&gt;<span class="hljs-string">'route-name'</span>]);
+    Router::post(<span class="hljs-string">'route/{id}'</span>, [<span class="hljs-string">'class@action'</span>, <span
+            class="hljs-string">'name'</span>=&gt;<span class="hljs-string">'route-name'</span>]);
+    Router::head(<span class="hljs-string">'route/{id}'</span>, [<span class="hljs-string">'class@action'</span>, <span
+            class="hljs-string">'name'</span>=&gt;<span class="hljs-string">'route-name'</span>]);
+    Router::put(<span class="hljs-string">'route/{id}'</span>, [<span class="hljs-string">'class@action'</span>, <span
+            class="hljs-string">'name'</span>=&gt;<span class="hljs-string">'route-name'</span>]);
+    Router::delete(<span class="hljs-string">'route/{id}'</span>, [<span class="hljs-string">'class@action'</span>,
+    <span class="hljs-string">'name'</span>=&gt;<span class="hljs-string">'route-name'</span>]);
+    Router::get(<span class="hljs-string">'post/{id}/view'</span>, [<span class="hljs-string">'class@action'</span>,
+    <span class="hljs-string">'name'</span>=&gt;<span class="hljs-string">'route-name'</span>]);
+
+    <span class="hljs-comment">// Multiple HTTP verbs</span>
+    Router::methods([<span class="hljs-string">'post'</span>, <span class="hljs-string">'get'</span>],<span
+            class="hljs-string">'route/{id}'</span>, [<span class="hljs-string">'class@action'</span>, <span
+            class="hljs-string">'name'</span>=&gt;<span class="hljs-string">'route-name'</span>]);
+    Router::any(<span class="hljs-string">'route/{id}'</span>, [<span class="hljs-string">'class@action'</span>, <span
+            class="hljs-string">'name'</span>=&gt;<span class="hljs-string">'route-name'</span>]);
+
+    <span class="hljs-comment">// Callback</span>
+    Router::get(<span class="hljs-string">'route/{slug}/{id}'</span>, [<span class="hljs-function"><span
+            class="hljs-keyword">function</span><span class="hljs-params">(<span
+            class="hljs-variable">$slug</span>, <span class="hljs-variable">$id</span>)</span></span>{
+    <span class="hljs-keyword">echo</span> <span class="hljs-variable">$id</span> . <span
+            class="hljs-string">' from '</span> . <span class="hljs-variable">$slug</span>;
+    }, <span class="hljs-string">'name'</span>=&gt;<span class="hljs-string">'callback'</span>]);
+
+    <span class="hljs-comment">//Optional Parameters</span>
+    <span class="hljs-comment">// Matches /route/user-post/55 or /route/user-post</span>
+    Router::get(<span class="hljs-string">'route/{slug}/{id?}'</span>, [<span class="hljs-string">'class@action'</span>,
+    <span class="hljs-string">'name'</span>=&gt;<span class="hljs-string">'route-name'</span>]);
+
+    <span class="hljs-comment">//Regular Expression - Syntax {param:[regex]}</span>
+    Router::get(<span class="hljs-string">'route/{slug}/edit/{post:[a-z]}/{id:[0-9]}'</span>, [<span
+            class="hljs-string">'class@action'</span>, <span class="hljs-string">'name'</span>=&gt;<span
+            class="hljs-string">'route-name'</span>]);
+    Router::get(<span class="hljs-string">'route/{lang:(en|bg)}/{post}/{id:\d+}'</span>, [<span class="hljs-string">'class@action'</span>,
+    <span class="hljs-string">'name'</span>=&gt;<span class="hljs-string">'route-name'</span>]);
+
+
+    <span class="hljs-comment">// Matches: /route/my-post-name.pdf</span>
+    Router::get(<span class="hljs-string">'route/{slug:^\w+((?:\.pdf))$}'</span>, [<span class="hljs-string">'class@action'</span>,
+    <span class="hljs-string">'name'</span>=&gt;<span class="hljs-string">'route-name'</span>]);
+
+    <span class="hljs-comment">// Use (format=html) instead Regular Expression | Matches: /route/my-post-name.html or /route/my-post-name</span>
+    Router::get(<span class="hljs-string">'route/{slug:format=html}, ['</span><span class="hljs-class"><span
+            class="hljs-keyword">class</span>@<span class="hljs-title">action</span>', '<span
+            class="hljs-title">name</span>'=&gt;'<span class="hljs-title">route</span>-<span
+            class="hljs-title">name</span>']);
+
+</span></code></pre>
+<h3><a id="Dispatch_routes_38"></a>Dispatch routes</h3>
+<pre><code class="language-php"><span class="hljs-keyword">include_once</span> <span
+        class="hljs-string">'Router.php'</span>;
+    <span class="hljs-keyword">include_once</span> <span class="hljs-string">'routes.php'</span>;
+
+    <span class="hljs-variable">$router</span> = <span class="hljs-keyword">new</span> Router();
+    <span class="hljs-variable">$route</span> = <span class="hljs-variable">$router</span>-&gt;dispatch(<span
+            class="hljs-string">'post/55'</span>);
+
+<span class="hljs-comment">/*
+$route now is array like
+
+Array
+(
+    [action] =&gt; controller<span class="hljs-doctag">@action</span>
+    [params] =&gt; Array
+        (
+            [id] =&gt; 55
+        )
+)
+*/</span>
+
+</code></pre>
+<h4><a id="Named_routes_60"></a>Named routes</h4>
+
+<p>You may specify a name for a route using the “name” array key when defining the route:</p>
+<pre><code class="language-php"><span class="hljs-comment">//the route name is 'lang-fr'</span>
+    Router::get(<span class="hljs-string">'route/{lang}/post/{slug}'</span>, [<span
+            class="hljs-string">'Class@action'</span>, <span class="hljs-string">'name'</span>=&gt;<span
+            class="hljs-string">'lang-fr'</span>]);
+</code></pre>
+<h4><a id="Make_URI_string_To_Named_Route_66"></a>Make URI string To Named Route</h4>
+
+<p>If the named route defines parameters, you may pass array with parameters<br>
+    as the second argument to the ‘route’ method</p>
+<pre><code class="language-php"><span
+        class="hljs-comment">// generate URI string like: route/fr/post/your-post-slug</span>
+    <span class="hljs-variable">$route</span> = <span class="hljs-variable">$router</span>-&gt;route(<span
+            class="hljs-string">'lang-fr'</span>,[<span class="hljs-string">'lang'</span>=&gt;<span class="hljs-string">'fr'</span>,
+    <span class="hljs-string">'slug'</span>=&gt;<span class="hljs-string">'your-post-slug'</span>])-&gt;route;
+
+    <span class="hljs-comment">//Set http verbs </span>
+    <span class="hljs-variable">$route</span> = <span class="hljs-variable">$router</span>-&gt;route(<span
+            class="hljs-string">'lang-fr'</span>,[<span class="hljs-string">'lang'</span>=&gt;<span class="hljs-string">'fr'</span>,
+    <span class="hljs-string">'slug'</span>=&gt;<span class="hljs-string">'your-post-slug'</span>], <span
+            class="hljs-string">'GET'</span>)-&gt;route;
+
+</code></pre>
+<h4><a id="Generate_URL_77"></a>Generate URL</h4>
+<pre><code class="language-php"><span class="hljs-comment">// generate URL: http://your-site-name.com/route/fr/post/your-post-slug</span>
+    <span class="hljs-variable">$url</span> = <span class="hljs-variable">$router</span>-&gt;route(<span
+            class="hljs-string">'lang-fr'</span>,[<span class="hljs-string">'lang'</span>=&gt;<span class="hljs-string">'fr'</span>,
+    <span class="hljs-string">'slug'</span>=&gt;<span class="hljs-string">'your-post-slug'</span>], <span
+            class="hljs-string">'GET'</span>)-&gt;url;
+</code></pre>
+
+</body>
+</html>
