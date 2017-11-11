@@ -14,7 +14,7 @@ class Router
     /**
      * @var array
      */
-    protected static $allowed_methods = ['GET', 'POST', 'HEAD', 'PUT', 'DELETE'];
+    protected static $allowed_methods = ['GET', 'POST', 'HEAD', 'PUT', 'PATCH', 'DELETE'];
     /**
      * @var
      */
@@ -347,7 +347,7 @@ class Router
             $parameters = array_filter($matches, function ($x) {
                 return ($x !== '');
             });
-//var_dump($parameters);
+
             if (true == $this->parametersPatternMatch($value['routeMap'][$count]['parameters'], $parameters)) {
                 if (!is_string($value['routeMap'][$count][0]) && is_callable($value['routeMap'][$count][0])) {
                     $this->matches = call_user_func_array($value['routeMap'][$count][0], $parameters);
@@ -416,7 +416,8 @@ class Router
 
                 if($count_argument!== $count_params){
 
-                    throw new \Exception(sprintf('В route трябва да е подаден масив с %d стойности . Плучен е масив с %d стойности',
+                    throw new \Exception(sprintf('В route трябва да е подаден масив с %d стойности .
+                                                    Плучен е масив с %d стойности',
                                                     $count_argument, $count_params ), 500);
                 }
 
@@ -553,6 +554,14 @@ class Router
         self::addroute('put', $uri, $action);
     }
 
+    /**
+     * @param $uri
+     * @param $action
+     */
+    public static function patch($uri, $action)
+    {
+        self::addroute('patch', $uri, $action);
+    }
     /**
      * @param $uri
      * @param $action
