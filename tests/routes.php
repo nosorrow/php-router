@@ -5,11 +5,13 @@
     exit;
 });*/
 
+Router::get('route/{lang}/post/{slug}', ['Class@action', 'name'=>'lang-fr']);
+
 Router::methods(['get', 'post'], 'search', ['Rooms@search', 'name' => 'search']);
 Router::methods(['get', 'post'], 'booking/{name}/{id}', ['Rooms@booking', 'name' => 'route_booking']);
 
-Router::get('route/{lang}/post/{slug}', ['controller@action', 'name'=>'name']);
-Router::get('/', ['Homeclass@IndexMethod', 'name'=>'index']);
+//Router::get('route/{lang}/post/{slug}', ['controller@action', 'name'=>'name']);
+Router::get('{id}', ['Homeclass@IndexMethod', 'name'=>'index']);
 Router::get('testroute/{lang:(en|bg)}/{slug}/edit/{post}/{id?:\d+}', ['test/controller@route_post', 'name'=>'test']);
 Router::get('route-test/{slug?:^\w+((?:\.pdf)?)$}', ['Admin3/controller@route_GET', 'name'=>'route-pdf']);
 Router::methods(['get', 'post'], 'route/{post}/{id}', ['Admin/controller@route_GET', 'name'=>'route-methods']);
