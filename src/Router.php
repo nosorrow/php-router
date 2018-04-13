@@ -227,7 +227,25 @@ class Router
         }
         $parameters = array_column($parameters, 'paramvalue', 'paramname');
 
-        return array_filter($parameters, function ($x) {
+        return $this->param_filter($parameters);
+    }
+
+    /**
+     * @param array $parameters
+     * @return array
+     */
+    protected function param_filter(array $parameters)
+    {
+        foreach($parameters as $k=>$v){
+            if($v === null){
+                unset($parameters[$k]);
+            }
+        }
+
+        return array_filter($parameters, function($x){
+            if ($x === null) {
+                $x = '1';
+            }
             return ($x !== '');
         });
     }
@@ -319,7 +337,7 @@ class Router
         if (isset($routes[$httpMethod][$uri])) {
             if (!is_string($routes[$httpMethod][$uri][0]) && is_callable($routes[$httpMethod][$uri][0])) {
                 $this->matches = call_user_func($routes[$httpMethod][$uri][0]);
-
+                exit;
             } else {
                 $this->matches['action'] = ($routes[$httpMethod][$uri][0]);
 
@@ -328,7 +346,7 @@ class Router
             return $this->matches;
         }
         /*
-         * Ако няма директно подадение (имаме параметри в Uri)
+         * Ако няма директно подадение (имаме аргументи в Uri)
          * get route Collection Array
          *
          * */
@@ -344,9 +362,7 @@ class Router
 
             array_shift($matches);
             // параметрите от url
-            $parameters = array_filter($matches, function ($x) {
-                return ($x !== '');
-            });
+            $parameters = $this->param_filter($matches);
 
             if (true == $this->parametersPatternMatch($value['routeMap'][$count]['parameters'], $parameters)) {
                 if (!is_string($value['routeMap'][$count][0]) && is_callable($value['routeMap'][$count][0])) {
@@ -397,17 +413,14 @@ class Router
             if (($routename !== $action['name'])) {
                 continue;
             }
-
             // има ли параметри в route
             if (preg_match_all('#\{([^/]+)*?\}#', $route, $matches)) {
-
                 $argument = array_map(function ($a) {
                     return rtrim($a, '?');
-
                 }, $matches[1]);
 
                 /*
-                * ако има параметри , но не са подадени ->
+                * ако има параметри , но не са подадени аргументите ->
                 *  Router::get('route/{slug}/{id?}', ['controller@action', 'name'=>'name']);
                 * $router->route('name') ще хвърли Exeption
                 */
@@ -416,9 +429,8 @@ class Router
 
                 if($count_argument!== $count_params){
 
-                    throw new \Exception(sprintf('В route трябва да е подаден масив с %d стойности .
-                                                    Плучен е масив с %d стойности',
-                                                    $count_argument, $count_params ), 500);
+                    throw new \Exception(sprintf('В route трябва да е подаден масив с %d стойности . Плучен е масив с %d стойности',
+                        $count_argument, $count_params ), 500);
                 }
 
                 /*
@@ -433,7 +445,7 @@ class Router
                     $diff = array_diff_key($params, $argument);
 
                     if (!empty($diff)) {
-                    // Ako е подаден грешен ключ в масива $params
+                        // Ako е подаден грешен ключ в масива $params
                         throw new Exception('Wrong set route parameter ' . implode(' | ', $diff));
                     }
 
@@ -442,7 +454,6 @@ class Router
                         return '#\{' . $a . '\}|\{' . $a . '\?\}#';
 
                     }, $argument);
-
                     $this->route = preg_replace($pattern_array, $params, $route);
 
                 } else {
@@ -480,6 +491,9 @@ class Router
 
         if (!$this->route) {
             throw new \Exception(sprintf('Route name: %s is not found in router.php', $routename));
+        } else {
+            $this->route = rtrim($this->route, '/');
+
         }
 
         $this->url = $this->site_url($this->route);
