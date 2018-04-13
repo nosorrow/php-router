@@ -65,7 +65,11 @@ class Router
 
         if (!isset(self::$rawRoutes[$method][$uri])) {
 
-            self::dublicateRouteName($method, $action['name']);
+            if (isset($action['name'])){
+
+                self::dublicateRouteName($method, $action['name']);
+
+            }
 
             self::$rawRoutes[$method][$uri] = (array)$action;
 
@@ -408,7 +412,6 @@ class Router
         } else {
             $httpmethod = strtoupper($request_method);
         }
-
         foreach ($routes[$httpmethod] as $route => $action) {
             if (($routename !== $action['name'])) {
                 continue;
@@ -416,13 +419,16 @@ class Router
             // има ли параметри в route
             if (preg_match_all('#\{([^/]+)*?\}#', $route, $matches)) {
                 $argument = array_map(function ($a) {
+                    if (!false == strpos($a, ':')) {
+                        $a = substr($a, 0, strpos($a, ':'));
+                    }
                     return rtrim($a, '?');
                 }, $matches[1]);
-
+                
                 /*
                 * ако има параметри , но не са подадени аргументите ->
                 *  Router::get('route/{slug}/{id?}', ['controller@action', 'name'=>'name']);
-                * $router->route('name') ще хвърли Exeption
+                *  $router->route('name') ще хвърли Exeption
                 */
                 $count_argument = count($argument);
                 $count_params = count($params);
@@ -451,9 +457,10 @@ class Router
 
                     $pattern_array = array_map(function ($a) {
 
-                        return '#\{' . $a . '\}|\{' . $a . '\?\}#';
+                        return '#\{' . $a . '\}|\{' . $a . '\?\}|\{' . $a . ':[\s\S]+?\}|\{' . $a . '\?:[\s\S]+?\}#';
 
                     }, $argument);
+
                     $this->route = preg_replace($pattern_array, $params, $route);
 
                 } else {
@@ -467,7 +474,8 @@ class Router
                         throw new Exception('Wrong pass route parameter ' . implode(' | ', $diff));
                     }
                     $_array = array_map(function ($a) {
-                        return '#\{' . $a . '\}|\{' . $a . '\?\}#';
+
+                        return '#\{' . $a . '\}|\{' . $a . '\?\}|\{' . $a . ':[\s\S]+?\}|\{' . $a . '\?:[\s\S]+?\}#';
 
                     }, array_keys($params));
 
