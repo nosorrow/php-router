@@ -27,7 +27,7 @@ echo '<p>' . str_pad(' Route name ', 100, '*', STR_PAD_BOTH) . '</p>';
 // generate URI from route
 for ($i=0; $i<$x; $i++) {
 
-  $route_str = $router->route('route', ['plamen', 55,66], 'get')->route;
+  $route_str = $router->route('route', ['post'=>'Post', 'slug'=>'Slug','id'=>66], 'get')->route;
 
     //$route_str = $router->route('lang-fr',['lang'=>'fr', 'slug'=>'your-post-slug'], 'get')->route;
     //$route_str = $router->route('route_booking', ['id'=>'55', 'name'=>'plamen'], 'get')->route;
