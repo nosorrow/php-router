@@ -91,7 +91,7 @@ class Router
         if (is_array($r)) {
             // check for Duplicate
             foreach ($r as $method => $action) {
-                if (isset($action['name'])) {
+                if (isset($action['name'])){
                     if ($route_name === $action['name']) {
                         throw new \Exception(sprintf('Duplicate [httpMethod: %s  route name: %s]', $httpMethod, $route_name));
                     }
@@ -412,6 +412,7 @@ class Router
         } else {
             $httpmethod = strtoupper($request_method);
         }
+
         foreach ($routes[$httpmethod] as $route => $action) {
             if (($routename !== $action['name'])) {
                 continue;

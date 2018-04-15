@@ -5,8 +5,6 @@
     exit;
 });*/
 
-Router::get('route/{slug?:[0-9]}', ['controller@route_GET_Regex']);
-
 Router::get('route/{lang}/post/{slug}', ['Class@action', 'name'=>'lang-fr']);
 
 Router::methods(['get', 'post'], 'search', ['Rooms@search', 'name' => 'search']);
@@ -17,8 +15,9 @@ Router::get('{id}', ['Homeclass@IndexMethod', 'name'=>'index']);
 Router::get('testroute/{lang:(en|bg)}/{slug}/edit/{post}/{id?:\d+}', ['test/controller@route_post', 'name'=>'test']);
 Router::get('route-test/{slug:^\w+((?:\.pdf)?)$}', ['Admin3/controller@route_GET', 'name'=>'route-pdf']);
 Router::methods(['get', 'post'], 'route/{post}/{id}', ['Admin/controller@route_GET', 'name'=>'route-methods']);
-Router::get('route/post/{slug?}/edit/{post?:[a-z]+}/{id?:[0-9]+}', ['Admin1/controller@route_GET', 'name'=>'route']);
-Router::get('route/{slug?}', ['Admin1/controller@route_GET', 'name'=>'route1']);
+
+Router::get('route/post/{slug}/edit/{post?:[a-z]+}/{id?:[0-9]+}', ['Admin1/controller@route_GET', 'name'=>'route']);
+Router::get('route/{slug}', ['Admin1/controller@route_GET', 'name'=>'route1']);
 Router::get('route2/{slug}/{id}', ['Admin2/controller@route_GET', 'name'=>'route2']);
 Router::get('route3/{slug}/{id}', ['Admin3/controller@route_GET', 'name'=>'route3']);
 Router::get('route4/{slug}/{id}', ['Admin4/controller@route_GET', 'name'=>'route4']);

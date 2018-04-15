@@ -14,7 +14,7 @@ echo '<pre><p>' . str_pad(' Route match ', 100, '*', STR_PAD_BOTH) . '</p>';
 
 // router match uri
 for ($i=0; $i<$x; $i++) {
-    $match = $router->dispatch('get', 'route/post/plamen/edit/no/66');
+    $match = $router->dispatch('get', 'route99/plamen/99');
    // $match = $router->dispatch('get', 'route-test/slug.pdf');
    // $match = $router->dispatch('get', 'route100/slug/0');
   //$match = $router->dispatch('get', 'route149/test/2/3/14/10/6/7/8/90');
@@ -29,8 +29,7 @@ for ($i=0; $i<$x; $i++) {
 
   $route_str = $router->route('route', ['plamen', 55,66], 'get')->route;
 
- //   $route_str = $router->route('lang-fr',['lang'=>'fr', 'slug'=>'your-post-slug'], 'get')->route;
-
+    //$route_str = $router->route('lang-fr',['lang'=>'fr', 'slug'=>'your-post-slug'], 'get')->route;
     //$route_str = $router->route('route_booking', ['id'=>'55', 'name'=>'plamen'], 'get')->route;
     $url = $router->site_url($route_str);
 
