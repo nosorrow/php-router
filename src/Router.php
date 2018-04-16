@@ -65,7 +65,7 @@ class Router
 
         if (!isset(self::$rawRoutes[$method][$uri])) {
 
-            if (isset($action['name'])){
+            if (isset($action['name'])) {
 
                 self::dublicateRouteName($method, $action['name']);
 
@@ -86,12 +86,12 @@ class Router
     protected static function dublicateRouteName($httpMethod, $route_name)
     {
         //skip: Notice: Undefined index”
-        $r = isset(self::$rawRoutes[$httpMethod]) ? self::$rawRoutes[$httpMethod] :'';
+        $r = isset(self::$rawRoutes[$httpMethod]) ? self::$rawRoutes[$httpMethod] : '';
         //skip Warning: Invalid argument supplied for foreach()
         if (is_array($r)) {
             // check for Duplicate
             foreach ($r as $method => $action) {
-                if (isset($action['name'])){
+                if (isset($action['name'])) {
                     if ($route_name === $action['name']) {
                         throw new \Exception(sprintf('Duplicate [httpMethod: %s  route name: %s]', $httpMethod, $route_name));
                     }
@@ -223,7 +223,7 @@ class Router
 
             if ($format_value[$key] != '') {
                 $paramvalue = substr($param_val[$key], 0, strrpos($param_val[$key], '.'));
-                $parameters[$key]['paramvalue'] = ((bool)$paramvalue == false) ? $param_val[$key] :$paramvalue;
+                $parameters[$key]['paramvalue'] = ((bool)$paramvalue == false) ? $param_val[$key] : $paramvalue;
 
             } else {
                 $parameters[$key]['paramvalue'] = $param_val[$key];
@@ -240,13 +240,13 @@ class Router
      */
     protected function param_filter(array $parameters)
     {
-        foreach($parameters as $k=>$v){
-            if($v === null){
+        foreach ($parameters as $k => $v) {
+            if ($v === null) {
                 unset($parameters[$k]);
             }
         }
 
-        return array_filter($parameters, function($x){
+        return array_filter($parameters, function ($x) {
             if ($x === null) {
                 $x = '1';
             }
@@ -295,6 +295,27 @@ class Router
 
         return ['regex' => $regex, 'routeMap' => $routeMap];
 
+    }
+
+    /**
+     * @param $needle
+     * @param $haystack
+     * @return bool|int|string
+     */
+    protected function recursiveRouteNameSearch($needle, $haystack)
+    {
+        foreach ($haystack as $key => $value) {
+            $current_key = $key;
+            if (isset($value['name'])) {
+                if ($needle !== $value['name']) {
+                    continue;
+                } else {
+                    return $current_key;
+                }
+            }
+        }
+
+        return false;
     }
 
     /**
@@ -407,96 +428,98 @@ class Router
         $routes = self::$rawRoutes;
 
         if ($request_method == null) {
-            $httpmethod = ($_SERVER['REQUEST_METHOD']) ? $_SERVER['REQUEST_METHOD'] :'GET';
+            $httpmethod = ($_SERVER['REQUEST_METHOD']) ? $_SERVER['REQUEST_METHOD'] : 'GET';
 
         } else {
             $httpmethod = strtoupper($request_method);
         }
 
-        foreach ($routes[$httpmethod] as $route => $action) {
-            if (($routename !== $action['name'])) {
-                continue;
+        //  foreach ($routes[$httpmethod] as $route => $action) {
+        //      if (($routename !== $action['name'])) {
+        //          continue;
+        //      }
+
+        $route = $this->recursiveRouteNameSearch($routename, $routes[$httpmethod]);
+        // има ли параметри в route
+        if (preg_match_all('#\{([^/]+)*?\}#', $route, $matches)) {
+            $argument = array_map(function ($a) {
+                if (!false == strpos($a, ':')) {
+                    $a = substr($a, 0, strpos($a, ':'));
+                }
+                return rtrim($a, '?');
+            }, $matches[1]);
+
+            /*
+            * ако има параметри , но не са подадени аргументите ->
+            *  Router::get('route/{slug}/{id?}', ['controller@action', 'name'=>'name']);
+            *  $router->route('name') ще хвърли Exeption
+            */
+            $count_argument = count($argument);
+            $count_params = count($params);
+
+            if ($count_argument !== $count_params) {
+
+                throw new \Exception(sprintf('В route трябва да е подаден масив с %d стойности . Плучен е масив с %d стойности',
+                    $count_argument, $count_params), 500);
             }
-            // има ли параметри в route
-            if (preg_match_all('#\{([^/]+)*?\}#', $route, $matches)) {
-                $argument = array_map(function ($a) {
-                    if (!false == strpos($a, ':')) {
-                        $a = substr($a, 0, strpos($a, ':'));
-                    }
-                    return rtrim($a, '?');
-                }, $matches[1]);
-                
-                /*
-                * ако има параметри , но не са подадени аргументите ->
-                *  Router::get('route/{slug}/{id?}', ['controller@action', 'name'=>'name']);
-                *  $router->route('name') ще хвърли Exeption
-                */
-                $count_argument = count($argument);
-                $count_params = count($params);
 
-                if($count_argument!== $count_params){
+            /*
+            * Ако $params е индексиран масив, параметрите ще бъдат
+            * поставени в URI последователно
+            * Router::get('route/{slug}/{id}', ['controller@action', 'name'=>'name']);
+            * $router->route('name', ['p1', 'p2']) ще върне route/p1/p2
+            */
+            $isIndexed = count(array_filter(array_keys($params), 'is_string')) < count(array_keys($params));
 
-                    throw new \Exception(sprintf('В route трябва да е подаден масив с %d стойности . Плучен е масив с %d стойности',
-                        $count_argument, $count_params ), 500);
+            if ($isIndexed === true) {
+                $diff = array_diff_key($params, $argument);
+
+                if (!empty($diff)) {
+                    // Ako е подаден грешен ключ в масива $params
+                    throw new Exception('Wrong set route parameter ' . implode(' | ', $diff));
                 }
 
-                /*
-                * Ако $params е индексиран масив, параметрите ще бъдат
-                * поставени в URI последователно
-                * Router::get('route/{slug}/{id}', ['controller@action', 'name'=>'name']);
-                * $router->route('name', ['p1', 'p2']) ще върне route/p1/p2
-                */
-                $isIndexed = count(array_filter(array_keys($params), 'is_string')) < count(array_keys($params));
+                $pattern_array = array_map(function ($a) {
 
-                if ($isIndexed === true) {
-                    $diff = array_diff_key($params, $argument);
+                    return '#\{' . $a . '\}|\{' . $a . '\?\}|\{' . $a . ':[\s\S]+?\}|\{' . $a . '\?:[\s\S]+?\}#';
 
-                    if (!empty($diff)) {
-                        // Ako е подаден грешен ключ в масива $params
-                        throw new Exception('Wrong set route parameter ' . implode(' | ', $diff));
-                    }
+                }, $argument);
 
-                    $pattern_array = array_map(function ($a) {
-
-                        return '#\{' . $a . '\}|\{' . $a . '\?\}|\{' . $a . ':[\s\S]+?\}|\{' . $a . '\?:[\s\S]+?\}#';
-
-                    }, $argument);
-
-                    $this->route = preg_replace($pattern_array, $params, $route);
-
-                } else {
-                    /*
-                    * Ако  $params е асоциативен масив - ще постави параметрите
-                    * в URI на техните правилни позиции
-                    */
-                    $diff = array_diff(array_keys($params), $argument);
-
-                    if (!empty($diff)) {
-                        throw new Exception('Wrong pass route parameter ' . implode(' | ', $diff));
-                    }
-                    $_array = array_map(function ($a) {
-
-                        return '#\{' . $a . '\}|\{' . $a . '\?\}|\{' . $a . ':[\s\S]+?\}|\{' . $a . '\?:[\s\S]+?\}#';
-
-                    }, array_keys($params));
-
-                    $pattern_array = array_combine($_array, array_values($params));
-
-                    foreach ($pattern_array as $pattern => $replacement) {
-                        $route = preg_replace($pattern, $replacement, $route);
-                    }
-
-                    $this->route = $route;
-                }
+                $this->route = preg_replace($pattern_array, $params, $route);
 
             } else {
-                $routekey = trim($route);
+                /*
+                * Ако  $params е асоциативен масив - ще постави параметрите
+                * в URI на техните правилни позиции
+                */
+                $diff = array_diff(array_keys($params), $argument);
 
-                $_params = (!empty($params)) ? '/' . implode('/', $params) :'';
+                if (!empty($diff)) {
+                    throw new Exception('Wrong pass route parameter ' . implode(' | ', $diff));
+                }
+                $_array = array_map(function ($a) {
 
-                $this->route = $routekey . $_params;
+                    return '#\{' . $a . '\}|\{' . $a . '\?\}|\{' . $a . ':[\s\S]+?\}|\{' . $a . '\?:[\s\S]+?\}#';
+
+                }, array_keys($params));
+
+                $pattern_array = array_combine($_array, array_values($params));
+
+                foreach ($pattern_array as $pattern => $replacement) {
+                    $route = preg_replace($pattern, $replacement, $route);
+                }
+
+                $this->route = $route;
             }
+
+        } else {
+            $routekey = trim($route);
+
+            $_params = (!empty($params)) ? '/' . implode('/', $params) : '';
+
+            $this->route = $routekey . $_params;
         }
+        //}
 
         if (!$this->route) {
             throw new \Exception(sprintf('Route name: %s is not found in router.php', $routename));
@@ -513,7 +536,7 @@ class Router
 
     public function site_url($uri = null)
     {
-        $request_scheme = (!isset($_SERVER['REQUEST_SCHEME'])) ? 'http' :$_SERVER['REQUEST_SCHEME'];
+        $request_scheme = (!isset($_SERVER['REQUEST_SCHEME'])) ? 'http' : $_SERVER['REQUEST_SCHEME'];
         $site_url = $request_scheme . '://' . $_SERVER['HTTP_HOST'] .
             substr($_SERVER['SCRIPT_NAME'], 0, strpos($_SERVER['SCRIPT_NAME'], basename($_SERVER['SCRIPT_FILENAME'])))
             . $uri;
@@ -585,6 +608,7 @@ class Router
     {
         self::addroute('patch', $uri, $action);
     }
+
     /**
      * @param $uri
      * @param $action

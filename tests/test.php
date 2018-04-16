@@ -8,7 +8,7 @@ $route_str = '';
 $start = microtime(true);
 
 $router = new Router;
-$x = 10000;
+$x = 1;
 
 echo '<pre><p>' . str_pad(' Route match ', 100, '*', STR_PAD_BOTH) . '</p>';
 
@@ -27,19 +27,30 @@ echo '<p>' . str_pad(' Route name ', 100, '*', STR_PAD_BOTH) . '</p>';
 // generate URI from route
 for ($i=0; $i<$x; $i++) {
 
-  $route_str = $router->route('route100', ['slug'=>'Slug','id'=>66], 'get')->route;
+    $route_str = $router->route('route99', ['slug', 66], 'get')->route;
+    $route_str2 = $router->route('route98', ['slug', 66], 'get')->route;
+    $route_str3 = $router->route('route97', ['slug', 66], 'get')->route;
+    $route_str4 = $router->route('route96', ['slug', 66], 'get')->route;
+    $route_str5 = $router->route('route95', ['slug', 66], 'get')->route;
+    $route_str6 = $router->route('route94', ['slug', 66], 'get')->route;
+    $route_str7 = $router->route('route93', ['slug', 66], 'get')->route;
 
-    //$route_str = $router->route('lang-fr',['lang'=>'fr', 'slug'=>'your-post-slug'], 'get')->route;
-    //$route_str = $router->route('route_booking', ['id'=>'55', 'name'=>'plamen'], 'get')->route;
-    $url = $router->site_url($route_str);
 
+//    $url = $router->site_url($route_str);
 
 }
 echo '<br><br> URI string: ';
 print_r($route_str);
+print_r($route_str2);
+print_r($route_str3);
+print_r($route_str4);
+print_r($route_str5);
+print_r($route_str6);
+print_r($route_str7);
+
 
 echo "<br> Site URL: ";
-print_r($url);
+//print_r($url);
 printf('<p>Time:  %f sec. | memory: %f KB</p>', microtime(true)-$start, memory_get_peak_usage()/1024);
 echo '<p>' . str_pad(" Bench for $x ", 100, '*', STR_PAD_BOTH) . '</p>';
 echo '<pre>';
