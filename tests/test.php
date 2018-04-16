@@ -8,18 +8,18 @@ $route_str = '';
 $start = microtime(true);
 
 $router = new Router;
-$x = 1;
+$x = 10000;
 
 echo '<pre><p>' . str_pad(' Route match ', 100, '*', STR_PAD_BOTH) . '</p>';
 
 // router match uri
 for ($i=0; $i<$x; $i++) {
-    $match = $router->dispatch('get', 'route99/plamen/99');
+   // $match = $router->dispatch('get', 'route99/plamen/99');
    // $match = $router->dispatch('get', 'route-test/slug.pdf');
    // $match = $router->dispatch('get', 'route100/slug/0');
   //$match = $router->dispatch('get', 'route149/test/2/3/14/10/6/7/8/90');
 }
-var_dump($match);
+//var_dump($match);
 
 printf('<p>Time: %f sec. | memory: %f KB</p>', microtime(true)-$start, memory_get_peak_usage()/1024);
 echo '<p>' . str_pad(' Route name ', 100, '*', STR_PAD_BOTH) . '</p>';
@@ -27,7 +27,7 @@ echo '<p>' . str_pad(' Route name ', 100, '*', STR_PAD_BOTH) . '</p>';
 // generate URI from route
 for ($i=0; $i<$x; $i++) {
 
-  $route_str = $router->route('route', ['post'=>'Post', 'slug'=>'Slug','id'=>66], 'get')->route;
+  $route_str = $router->route('route100', ['slug'=>'Slug','id'=>66], 'get')->route;
 
     //$route_str = $router->route('lang-fr',['lang'=>'fr', 'slug'=>'your-post-slug'], 'get')->route;
     //$route_str = $router->route('route_booking', ['id'=>'55', 'name'=>'plamen'], 'get')->route;
