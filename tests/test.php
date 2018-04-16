@@ -8,7 +8,7 @@ $route_str = '';
 $start = microtime(true);
 
 $router = new Router;
-$x = 1;
+$x = 10000;
 
 echo '<pre><p>' . str_pad(' Route match ', 100, '*', STR_PAD_BOTH) . '</p>';
 
