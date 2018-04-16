@@ -405,7 +405,7 @@ class Router
     public function route($routename, array $params = [], $request_method = null)
     {
         $routes = self::$rawRoutes;
-
+        var_export($routes);
         if ($request_method == null) {
             $httpmethod = ($_SERVER['REQUEST_METHOD']) ? $_SERVER['REQUEST_METHOD'] :'GET';
 
