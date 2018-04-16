@@ -441,6 +441,7 @@ class Router
 
         $route = $this->recursiveRouteNameSearch($routename, $routes[$httpmethod]);
         // има ли параметри в route
+        // \{.*?\} -> pattern for papameters
         if (preg_match_all('#\{([^/]+)*?\}#', $route, $matches)) {
             $argument = array_map(function ($a) {
                 if (!false == strpos($a, ':')) {
