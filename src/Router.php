@@ -434,11 +434,6 @@ class Router
             $httpmethod = strtoupper($request_method);
         }
 
-        //  foreach ($routes[$httpmethod] as $route => $action) {
-        //      if (($routename !== $action['name'])) {
-        //          continue;
-        //      }
-
         $route = $this->recursiveRouteNameSearch($routename, $routes[$httpmethod]);
         // има ли параметри в route
         // \{.*?\} -> pattern for papameters
@@ -520,7 +515,6 @@ class Router
 
             $this->route = $routekey . $_params;
         }
-        //}
 
         if (!$this->route) {
             throw new \Exception(sprintf('Route name: %s is not found in router.php', $routename));
