@@ -34,6 +34,13 @@ for ($i=0; $i<$x; $i++) {
     $route_str5 = $router->route('route95', ['slug', 66], 'get')->route;
     $route_str6 = $router->route('route94', ['slug', 66], 'get')->route;
     $route_str7 = $router->route('route93', ['slug', 66], 'get')->route;
+    $route_str8 = $router->route('route99', ['slug', 66], 'get')->route;
+    $route_str12 = $router->route('route98', ['slug', 66], 'get')->route;
+    $route_str13 = $router->route('route97', ['slug', 66], 'get')->route;
+    $route_str14 = $router->route('route96', ['slug', 66], 'get')->route;
+    $route_str15 = $router->route('route95', ['slug', 66], 'get')->route;
+    $route_str16 = $router->route('route94', ['slug', 66], 'get')->route;
+    $route_str17 = $router->route('route93', ['slug', 66], 'get')->route;
 
 
 //    $url = $router->site_url($route_str);
