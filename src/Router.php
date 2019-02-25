@@ -435,9 +435,14 @@ class Router
         }
 
         $route = $this->recursiveRouteNameSearch($routename, $routes[$httpmethod]);
+
+        if (!$route) {
+            throw new \Exception(sprintf('Route name: %s is not found in router.php', $routename));
+        }
         // има ли параметри в route
         // \{.*?\} -> pattern for papameters
         if (preg_match_all('#\{([^/]+)*?\}#', $route, $matches)) {
+
             $argument = array_map(function ($a) {
                 if (!false == strpos($a, ':')) {
                     $a = substr($a, 0, strpos($a, ':'));
@@ -455,7 +460,7 @@ class Router
 
             if ($count_argument !== $count_params) {
 
-                throw new \Exception(sprintf('В route трябва да е подаден масив с %d стойности . Плучен е масив с %d стойности',
+                throw new \Exception(sprintf('An array of %d values must be passed to the route. An array of %d values has been received',
                     $count_argument, $count_params), 500);
             }
 
