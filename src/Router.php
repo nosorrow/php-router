@@ -439,6 +439,7 @@ class Router
         if (!$route) {
             throw new \Exception(sprintf('Route name: %s is not found in router.php', $routename));
         }
+        
         // има ли параметри в route
         // \{.*?\} -> pattern for papameters
         if (preg_match_all('#\{([^/]+)*?\}#', $route, $matches)) {
