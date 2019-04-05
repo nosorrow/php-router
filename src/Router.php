@@ -423,7 +423,7 @@ class Router
      * @return $this
      * @throws \Exception
      */
-    public function route($routename, array $params = [], $request_method = null)
+    public function route($routename, array $arguments = [], $request_method = null)
     {
         $routes = self::$rawRoutes;
 
@@ -434,20 +434,25 @@ class Router
             $httpmethod = strtoupper($request_method);
         }
 
+        // има ли route name ?
         $route = $this->recursiveRouteNameSearch($routename, $routes[$httpmethod]);
 
         if (!$route) {
             throw new \Exception(sprintf('Route name: %s is not found in router.php', $routename));
         }
-        
-        // има ли параметри в route
+
+        // Има ли параметри в route
         // \{.*?\} -> pattern for papameters
         if (preg_match_all('#\{([^/]+)*?\}#', $route, $matches)) {
-
-            $argument = array_map(function ($a) {
+            $parameters = array_map(function ($a) {
                 if (!false == strpos($a, ':')) {
                     $a = substr($a, 0, strpos($a, ':'));
                 }
+                // ще преброим опционалните параметри
+                if(strpos($a, '?') !== false){
+                    $this->countOptional ++;
+                }
+
                 return rtrim($a, '?');
             }, $matches[1]);
 
@@ -456,13 +461,32 @@ class Router
             *  Router::get('route/{slug}/{id?}', ['controller@action', 'name'=>'name']);
             *  $router->route('name') ще хвърли Exeption
             */
-            $count_argument = count($argument);
-            $count_params = count($params);
+            $count_argument = count($parameters);
+            $count_params = count($arguments);
 
-            if ($count_argument !== $count_params) {
-
+            // Ако има опционални параметри то може да не са подадени.
+            // Router::get('route/{slug}/{id?}', ['controller@action', 'name'=>'name']);
+            // route('name', ['slug'=>'blabla']
+            /* if ($count_argument !== $count_params) { */
+            if ($count_argument > ($count_params + $this->countOptional)) {
                 throw new \Exception(sprintf('An array of %d values must be passed to the route. An array of %d values has been received',
                     $count_argument, $count_params), 500);
+            }
+
+            // ще замества wildcard с подаден аргумент
+            // в примерно  post/{id} ще замени id с подадено число
+            $pattern = '#\{%s\}|\{%s\?\}|\{%s:[\s\S]+?\}|\{%s\?:[\s\S]+?\}#';
+
+            // Aко имаме опционални параметри, но не подаваме аргуенти
+            if (empty($arguments)) {
+                $pattern_array = array_map(function ($a) use ($pattern){
+                    return sprintf($pattern, $a, $a, $a, $a);
+                    //return '#\{' . $a . '\}|\{' . $a . '\?\}|\{' . $a . ':[\s\S]+?\}|\{' . $a . '\?:[\s\S]+?\}#';
+                }, $parameters);
+
+                $_route = rtrim(preg_replace($pattern_array, $arguments, $route), '/');
+                $this->route = str_replace('//','/', $_route);
+                return $this;
             }
 
             /*
@@ -471,65 +495,65 @@ class Router
             * Router::get('route/{slug}/{id}', ['controller@action', 'name'=>'name']);
             * $router->route('name', ['p1', 'p2']) ще върне route/p1/p2
             */
-            $isIndexed = count(array_filter(array_keys($params), 'is_string')) < count(array_keys($params));
+            $isIndexed = count(array_filter(array_keys($arguments), 'is_string')) < count(array_keys($arguments));
 
             if ($isIndexed === true) {
-                $diff = array_diff_key($params, $argument);
+                $diff = array_diff_key($arguments, $parameters);
 
                 if (!empty($diff)) {
                     // Ako е подаден грешен ключ в масива $params
-                    throw new Exception('Wrong set route parameter ' . implode(' | ', $diff));
+                    throw new \Exception('Router say : Wrong set parameter in route ' . implode(' | ', $diff), 500);
                 }
 
-                $pattern_array = array_map(function ($a) {
+                $pattern_array = array_map(function ($a) use ($pattern) {
+                    return sprintf($pattern, $a, $a, $a, $a);
+                    // return '#\{' . $a . '\}|\{' . $a . '\?\}|\{' . $a . ':[\s\S]+?\}|\{' . $a . '\?:[\s\S]+?\}#';
 
-                    return '#\{' . $a . '\}|\{' . $a . '\?\}|\{' . $a . ':[\s\S]+?\}|\{' . $a . '\?:[\s\S]+?\}#';
+                }, $parameters);
 
-                }, $argument);
-
-                $this->route = preg_replace($pattern_array, $params, $route);
+                $this->route = preg_replace($pattern_array, $arguments, $route);
 
             } else {
                 /*
                 * Ако  $params е асоциативен масив - ще постави параметрите
                 * в URI на техните правилни позиции
                 */
-                $diff = array_diff(array_keys($params), $argument);
+                $diff = array_diff(array_keys($arguments), $parameters);
 
                 if (!empty($diff)) {
-                    throw new Exception('Wrong pass route parameter ' . implode(' | ', $diff));
+                    throw new \Exception('Router say : Wrong pass route parameter ' . implode(' | ', $diff), 500);
                 }
-                $_array = array_map(function ($a) {
 
-                    return '#\{' . $a . '\}|\{' . $a . '\?\}|\{' . $a . ':[\s\S]+?\}|\{' . $a . '\?:[\s\S]+?\}#';
+                $_array = array_map(function ($a) use ($pattern){
+                    return sprintf($pattern, $a, $a, $a, $a);
+                    // return '#\{' . $a . '\}|\{' . $a . '\?\}|\{' . $a . ':[\s\S]+?\}|\{' . $a . '\?:[\s\S]+?\}#';
 
-                }, array_keys($params));
+                }, array_keys($arguments));
 
-                $pattern_array = array_combine($_array, array_values($params));
+                $pattern_array = array_combine($_array, array_values($arguments));
 
                 foreach ($pattern_array as $pattern => $replacement) {
                     $route = preg_replace($pattern, $replacement, $route);
                 }
-
-                $this->route = $route;
+                // ако са подадени по-малко аргументи изчистваме wildcard от route
+                $this->route = preg_replace("#\{[^/]*?\}#", '', $route);
             }
 
         } else {
             $routekey = trim($route);
 
-            $_params = (!empty($params)) ? '/' . implode('/', $params) : '';
+            $_params = (!empty($arguments)) ? '/' . implode('/', $arguments) : '';
 
             $this->route = $routekey . $_params;
         }
 
         if (!$this->route) {
-            throw new \Exception(sprintf('Route name: %s is not found in router.php', $routename));
+            throw new \Exception(sprintf('Router say : Route name: %s is not found in router.php', $routename), 500);
+
         } else {
             $this->route = rtrim($this->route, '/');
 
         }
-
-        $this->url = $this->site_url($this->route);
 
         return $this;
     }
