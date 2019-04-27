@@ -192,8 +192,8 @@ class Router
             }
 
             if (strpos($value, 'format') !== false) {
-                parse_str($value);
-                $value = str_replace($value, '^([a-z0-9_-]+)(?:\.' . $format . ')*$', $value);
+                parse_str($value, $output);
+                $value = str_replace($value, '^([a-z0-9_-]+)(?:\.' . $output['format'] . ')*$', $value);
             }
 
             if (isset($arg_values[$key])) {
