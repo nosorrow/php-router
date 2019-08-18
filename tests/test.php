@@ -12,6 +12,8 @@ $x = 10000;
 
 echo '<pre><p>' . str_pad(' Route match ', 100, '*', STR_PAD_BOTH) . '</p>';
 
+var_dump($router->dispatch('get', 'test'));
+
 // router match uri
 for ($i=0; $i<$x; $i++) {
    // $match = $router->dispatch('get', 'route99/plamen/99');
@@ -54,11 +56,10 @@ print_r($route_str4);
 print_r($route_str5);
 print_r($route_str6);
 print_r($route_str7);*/
-$route_str17 = $router->route('route9', ['slug'=>'test', 'id'=>66], 'get')->route;
+$route_str17 = $router->route('route-9', ['slug'=>'test', 'id'=>66], 'get')->route;
 print_r($route_str17);
 echo "<br> Site URL: ";
 //print_r($url);
 printf('<p>Time:  %f sec. | memory: %f KB</p>', microtime(true)-$start, memory_get_peak_usage()/1024);
 echo '<p>' . str_pad(" Bench for $x ", 100, '*', STR_PAD_BOTH) . '</p>';
 echo '<pre>';
-//var_dump($_SERVER);

@@ -4,7 +4,7 @@
     echo 'site down !!!';
     exit;
 });*/
-
+Router::get('test/{lang?}', ['Class@TestOffset', 'name'=>'testOffset']);
 Router::get('route/{lang}/post/{slug}', ['Class@action', 'name'=>'lang-fr']);
 
 Router::methods(['get', 'post'], 'search', ['Rooms@search', 'name' => 'search']);

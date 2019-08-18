@@ -44,6 +44,7 @@ class Router
      */
     protected $matches = [];
 
+    protected $countOptional = 0;
 
     /**
      * Router constructor.
@@ -396,7 +397,12 @@ class Router
 
                 } else {
                     $this->matches['action'] = $value['routeMap'][$count][0];
-                    $params = $this->compileParameters($value['routeMap'][$count]['parameters'], $parameters);
+                    if (count($parameters) !== 0){
+                        $params = $this->compileParameters($value['routeMap'][$count]['parameters'], $parameters);
+
+                    } else {
+                        $params = [];
+                    }
                     $this->matches['params'] = $params;
                 }
 
