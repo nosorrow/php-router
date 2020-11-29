@@ -129,10 +129,9 @@ class Router
         $new = [];
         $arr = explode('/', $route);
         foreach ($arr as $key => $value) {
-            if (isset($value[0]))
-                if ($value[0] != '{') {
-                    $value = '\b' . $value . '\b';
-                }
+            if (isset($value[0]) && $value[0] !== '{') {
+                $value = '\b' . $value . '\b';
+            }
 
             $new[] = $value;
         }
