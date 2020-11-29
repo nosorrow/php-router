@@ -306,13 +306,12 @@ class Router
     protected function recursiveRouteNameSearch($needle, $haystack)
     {
         foreach ($haystack as $key => $value) {
-            $current_key = $key;
             if (isset($value['name'])) {
                 if ($needle !== $value['name']) {
                     continue;
-                } else {
-                    return $current_key;
                 }
+
+                return $key;
             }
         }
 
